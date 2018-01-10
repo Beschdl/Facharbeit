@@ -101,7 +101,7 @@ void loop {
 			lcd.setCursor(4, 0);
 			lcd.print("Länge");
 			setLength();
-		case 9:
+		default:
 			lcd.setCursor(0, 0);
 			lcd.print(" ERROR: Eingabe");
 			lcd.setCursor(0, 1);
@@ -147,6 +147,45 @@ int readIR() {
 	}
 	return mode;
 }
+
+
+
+
+
+
+void setStopper() {
+	int time = 0;
+	int stop;
+	setStopperIntro();
+	if (readIR()==0){
+		while (stop!=1) {
+			lcd.setCursor(3, 1);
+			lcd.print(time);
+			delayMicroseconds(1);
+			time += 1;
+			if (readIR()==9){
+				stop=1;
+				lcd.setCursor(0, 1);
+				lcd.print("Final time: ");
+				lcd.print(time);
+		}
+	}
+}
+
+void setStopperIntro(){
+	lcd.setCursor(0, 0);
+	lcd.print("Zum Starten");
+	lcd.setCursor(0, 1);
+	lcd.print("Druecke \"0\"");
+	delay(2000);
+	lcd.setCursor(0, 0);
+	lcd.print("Zum Stoppen");
+	lcd.setCursor(0 ,1);
+	lcd.print("Druecke \"9\"");
+	delay(2000);
+}
+
+
 
 
 
