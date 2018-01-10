@@ -1,17 +1,17 @@
 /*
-##########################
-#		MESSGERÄT		 #
-#	Messbare Einheiten:	 #
-#		-Temperatur	 	 #
-#	-Lichtverhältnisse	 #
-#	-Luftfeutchtigkeit	 #
-#	-Geschwindigkeit	 #
-#	-Geschräusche bzw.   #
-#		Lautstärke  	 #
-#		-Zeit			 #
-#		-Länge			 #
-#	 +integrierte Uhr	 #
-##########################
+#################################
+#		MESSGERÄT	#
+#	Messbare Einheiten: 	#
+#		-Temperatur	#
+#	-Lichtverhältnisse	#
+#	-Luftfeutchtigkeit      #
+#	-Geschwindigkeit        #
+#	-Geschräusche bzw.      #
+#		Lautstärke  	#
+#		-Zeit		#
+#		-Länge		#
+#	 +integrierte Uhr	#
+#################################
 */
 
 int mode;
