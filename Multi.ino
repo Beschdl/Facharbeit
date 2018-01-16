@@ -68,7 +68,7 @@ void loop() {
   lcd.clear();
   switch (readIR()) {
     case 1:
-      setTime();
+      MysetTime();
     case 2:
       lcd.setCursor(3, 0);
       lcd.print("Temperatur");
@@ -76,7 +76,7 @@ void loop() {
     case 3:
       lcd.setCursor(1, 0);
       lcd.print("Helligkeit");
-      setBrightness();
+      MysetBrightness();
     case 4:
       lcd.setCursor(0, 0);
       lcd.print("Feuchtigkeit");
@@ -88,7 +88,7 @@ void loop() {
     case 6:
       lcd.setCursor(0, 0);
       lcd.print("Lautstärke");
-      setVolume();
+      MysetVolume();
     case 7:
       lcd.setCursor(6, 0);
       lcd.print("Zeit");
@@ -134,9 +134,6 @@ int readIR() {
 }
 
 
-class Functions {
-  
-public:
   void setStopper() {
     int time = 0;
     int stop;
@@ -152,8 +149,9 @@ public:
           lcd.setCursor(0, 1);
           lcd.print("Final time: ");
           lcd.print(time);
+        }
       }
-    }
+   }
   }
   
   void setStopperIntro(){
@@ -210,21 +208,18 @@ public:
     int Factor;
     int Temp;
     Temp = TempIn * Factor;
-    lcd.setCursor(5, 0)
+    lcd.setCursor(5, 0);
     lcd.print(Temp);
     lcd.print("°C");
     
   }
-  
-  
-  
   
   void setTime() {
     
     lcd.clear();
     int dayOfWeek = rtc.getDOWStr();
     int time = rtc.getTimeStr();
-    int data = rtc.getDateStr();
+    int date = rtc.getDateStr();
     
     lcd.setCursor(0, 0);
     lcd.print("Zeit:  ");
@@ -235,29 +230,24 @@ public:
   }
   
   
-  void setTemp(int in){
-    in = in;
-  }
   
-  
-  void setTime(){
-  
+  void MysetTime(){
+
     
   }
   
-  void setBrightness(){
-    
+  void MysetBrightness(){
+
   }
   
   void MysetSpeed(){
-    
+
   }
   
   void setHumidity(){
-    
+
   }
   
-  void setVolume(){
-    
+  void MysetVolume(){
+
   }
-}
