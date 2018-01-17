@@ -21,6 +21,7 @@
 #include <IRremote.h>
 #include <DS3231.h>     // Change library name, if doesn't exist
 
+const int processing = 0;
 int mode;
 
 //  ############# IMPORTANT CONSTANTS
@@ -215,7 +216,7 @@ void setTemp(int TempIn) {
 
 }
 
-void setTime() {
+void MysetTime() {
 
   lcd.clear();
   int dayOfWeek = rtc.getDOWStr();
@@ -230,12 +231,6 @@ void setTime() {
   lcd.print(date);
 }
 
-
-
-void MysetTime() {
-
-
-}
 
 void MysetBrightness() {
 
