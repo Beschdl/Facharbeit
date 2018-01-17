@@ -31,6 +31,7 @@ const int TRIG_PIN = 12;  //Pin for UltraSonicSensor (Send Waves)
 const int ECHO_PIN = A0;  //Pin for UltraSonicSensor (Recieve Waves);
 const int DELAY_USS = 10;
 const int TEMP_PIN = A1;  //For temperature measuring
+const int MOIST_PIN = A0;
 const int RS = 11;
 const int RW = 10;
 const int ENABLE = 9;
