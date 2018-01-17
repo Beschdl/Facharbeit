@@ -202,6 +202,10 @@ void setLength() {
 
   }
   delay(1);
+  
+  if (processing==1){
+    Serial.println(distance);
+  }  
 }
 
 
@@ -230,6 +234,9 @@ void MysetTime() {
   lcd.setCursor(1, 0);
   lcd.print("Datum:  ");
   lcd.print(date);
+  if (processing==1){
+    Serial.println(rtc.getSecondstr());
+  }  
 }
 
 
