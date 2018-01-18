@@ -21,8 +21,6 @@
 #include <IRremote.h>
 #include <DS3231.h>     // Change library name, if doesn't exist
 
-const int processing = 0;
-int mode;
 
 //  ############# IMPORTANT CONSTANTS
 
@@ -40,14 +38,16 @@ const int D5 = 4;
 const int D6 = 3;
 const int D7 = 2;
 
-//  ######## E.O. IMPORTANT CONSTANTS
+//  ########
 
-
+int mode = 0;
+int firstround=1;
+const int processing = 0;
 
 //  ####### BASIC FUNCTIONS
 
-extern IRrecv irrecv(RECV_PIN);
-extern decode_results results;
+IRrecv irrecv(RECV_PIN);
+decode_results results;
 DS3231 rtc(SDA, SCL);
 LiquidCrystal lcd(RS, RW, ENABLE, D4, D5, D6, D7);
 
@@ -64,39 +64,38 @@ void setup() {
   rtc.begin();
   lcd.begin(16, 2);
   irrecv.enableIRIn();
+  Serial.println("{*] Setup successfully finished");
 };
 
 
 void loop() {
   lcd.clear();
   switch (readIR()) {
-    case 1:
+    case 0:
       MysetTime();
-    case 2:
+    case 1:
       lcd.setCursor(3, 0);
       lcd.print("Temperatur");
       setTemp(analogRead(TEMP_PIN));
-    case 3:
+    case 2:
       lcd.setCursor(1, 0);
       lcd.print("Helligkeit");
       MysetBrightness();
-    case 4:
+    case 3:
       lcd.setCursor(0, 0);
       lcd.print("Feuchtigkeit");
       setHumidity();
-    case 5:
+    case 4:
       lcd.setCursor(0, 0);
       lcd.print("Geschwindigkeit");
       MysetSpeed();
-    case 6:
+    case 5:
       lcd.setCursor(0, 0);
       lcd.print("Lautstärke");
       MysetVolume();
+    case 6:
+
     case 7:
-      lcd.setCursor(6, 0);
-      lcd.print("Zeit");
-      setStopper();
-    case 8:
       lcd.setCursor(4, 0);
       lcd.print("Länge");
       setLength();
@@ -105,12 +104,17 @@ void loop() {
       lcd.print(" ERROR: Eingabe");
       lcd.setCursor(0, 1);
       lcd.print(" nicht vergeben");
+   
   }
-  delay(10);
+  delay(1);
+  if (firstround==firstround){
+    Serial.println("[*] First round finished");
+    firstround=0;
+  }
 }
 
 int readIR() {
-  int irValue = results.value;
+  long irValue = results.value;
   switch (irValue) {
     case 0xFF6897:  mode = 0;
       break;
@@ -131,6 +135,8 @@ int readIR() {
     case 0xFF4AB5:  mode = 8;
       break;
     case 0xFF52AD:  mode = 9;
+      break;
+    default:
       break;
   }
   return mode;
@@ -224,13 +230,13 @@ void setTemp(int TempIn) {
 void MysetTime() {
 
   lcd.clear();
-  int dayOfWeek = rtc.getDOWStr();
-  int time = rtc.getTimeStr();
-  int date = rtc.getDateStr();
+  char* dayOfWeek = rtc.getDOWStr();
+  char* Mytime = rtc.getTimeStr();
+  char* date = rtc.getDateStr();
 
   lcd.setCursor(0, 0);
   lcd.print("Zeit:  ");
-  lcd.print(time);
+  lcd.print(Mytime);
   lcd.setCursor(1, 0);
   lcd.print("Datum:  ");
   lcd.print(date);
@@ -252,3 +258,4 @@ void setHumidity() {
 void MysetVolume() {
 
 }
+
