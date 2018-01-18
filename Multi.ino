@@ -2,7 +2,7 @@
   #################################
   #      MESSGERÄT                #
   #   Messbare Einheiten:         #
-  #    -Temperatur                #    
+  #    -Temperatur                #
   #   -Lichtverhältnisse          #
   #   -Luftfeutchtigkeit          #
   #   -Geschwindigkeit            #
@@ -28,17 +28,17 @@ int mode;
 
 const int RECV_PIN = 13;  //Pin for IR reciever
 const int TRIG_PIN = 12;  //Pin for UltraSonicSensor (Send Waves)
-const int ECHO_PIN = A0;  //Pin for UltraSonicSensor (Recieve Waves);
+const int ECHO_PIN = A2;  //Pin for UltraSonicSensor (Recieve Waves);
 const int DELAY_USS = 10;
 const int TEMP_PIN = A1;  //For temperature measuring
 const int MOIST_PIN = A0;
 const int RS = 11;
 const int RW = 10;
 const int ENABLE = 9;
-const int D4 = 8;
-const int D5 = 7;
-const int D6 = 6;
-const int D7 = 5;
+const int D4 = 5;
+const int D5 = 4;
+const int D6 = 3;
+const int D7 = 2;
 
 //  ######## E.O. IMPORTANT CONSTANTS
 
@@ -46,8 +46,8 @@ const int D7 = 5;
 
 //  ####### BASIC FUNCTIONS
 
-IRrecv irrecv(RECV_PIN);
-decode_results results;
+extern IRrecv irrecv(RECV_PIN);
+extern decode_results results;
 DS3231 rtc(SDA, SCL);
 LiquidCrystal lcd(RS, RW, ENABLE, D4, D5, D6, D7);
 
@@ -202,10 +202,10 @@ void setLength() {
 
   }
   delay(1);
-  
-  if (processing==1){
+
+  if (processing == 1) {
     Serial.println(distance);
-  }  
+  }
 }
 
 
@@ -234,9 +234,6 @@ void MysetTime() {
   lcd.setCursor(1, 0);
   lcd.print("Datum:  ");
   lcd.print(date);
-  if (processing==1){
-    Serial.println(rtc.getSecondstr());
-  }  
 }
 
 
