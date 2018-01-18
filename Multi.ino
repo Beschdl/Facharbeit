@@ -41,7 +41,7 @@ const int D7 = 2;
 //  ########
 
 int mode = 0;
-int firstround=1;
+int firstround = 1;
 const int processing = 0;
 
 //  ####### BASIC FUNCTIONS
@@ -104,42 +104,47 @@ void loop() {
       lcd.print(" ERROR: Eingabe");
       lcd.setCursor(0, 1);
       lcd.print(" nicht vergeben");
-   
+
   }
   delay(1);
-  if (firstround==firstround){
+  if (firstround == 1) {
     Serial.println("[*] First round finished");
-    firstround=0;
+    firstround = 0;
   }
 }
 
 int readIR() {
   long irValue = results.value;
-  switch (irValue) {
-    case 0xFF6897:  mode = 0;
-      break;
-    case 0xFF30CF:  mode = 1;
-      break;
-    case 0xFF18E7:  mode = 2;
-      break;
-    case 0xFF7A85:  mode = 3;
-      break;
-    case 0xFF10EF:  mode = 4;
-      break;
-    case 0xFF38C7:  mode = 5;
-      break;
-    case 0xFF5AA5:  mode = 6;
-      break;
-    case 0xFF42BD:  mode = 7;
-      break;
-    case 0xFF4AB5:  mode = 8;
-      break;
-    case 0xFF52AD:  mode = 9;
-      break;
-    default:
-      break;
+  if (irrecv.decode(&results)) {
+    switch (irValue) {
+      case 0xFF6897:  mode = 0;
+        break;
+      case 0xFF30CF:  mode = 1;
+        break;
+      case 0xFF18E7:  mode = 2;
+        break;
+      case 0xFF7A85:  mode = 3;
+        break;
+      case 0xFF10EF:  mode = 4;
+        break;
+      case 0xFF38C7:  mode = 5;
+        break;
+      case 0xFF5AA5:  mode = 6;
+        break;
+      case 0xFF42BD:  mode = 7;
+        break;
+      case 0xFF4AB5:  mode = 8;
+        break;
+      case 0xFF52AD:  mode = 9;
+        break;
+      default:
+        break;
+    }
+    Serial.println(mode);
+    irrecv.resume();
   }
   return mode;
+
 }
 
 
