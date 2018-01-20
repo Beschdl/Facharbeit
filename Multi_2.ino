@@ -29,16 +29,16 @@ const int D4 = 7;
 const int P_PROC = 3;
 //__Variables__
 
-  //Melody
+//Melody
 char note1[] = "ccggaagffeeddc ";
 int beat1[] = { 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 4 };
 int tempo1 = 200;
 
-  //UltraSonicSensor
+//UltraSonicSensor
 const int maximumRange = 1400;
 const int minimumRange = 0;
 long duration, distance;
-  //Misc
+//Misc
 int mode = 4;
 int processing = 0;
 
@@ -71,20 +71,20 @@ void setup() {
 void loop() {
   checkMode();
   checkProcessing();
-  if (mode == 0) {
+  if (mode == 1) {
     FuncsetTime();
-  } else if (mode == 1) {
-    FuncsetTemp();
   } else if (mode == 2) {
-    FuncsetMoist();
+    FuncsetTemp();
   } else if (mode == 3) {
-    FuncsetBrightness();
+    FuncsetMoist();
   } else if (mode == 4) {
-    FuncsetLength();
+    FuncsetBrightness();
   } else if (mode == 5) {
+    FuncsetLength();
+  } else if (mode == 6) {
     FuncsetMelody();
   }
-  delay(100);
+  delay(10);
 }
 
 void checkProcessing() {
@@ -94,12 +94,11 @@ void checkProcessing() {
   } else if (act == LOW) {
     processing = 0;
   }
-  Serial.println(mode);
 }
 
 void checkMode() {
   int value = analogRead(A4);
-  mode = map(value, -10, 1023, 0, 5);
+  mode = map(value, -10, 1050, 1, 6);
 }
 
 
@@ -125,13 +124,13 @@ void FuncsetTemp() {
   Temp = Temp - 273.15;
   Temp = Temp / 5.42;
 
-  lcd.clear();
-  lcd.setCursor(3, 0);
-  lcd.print("Temperatur");
-  float out = Temp;
-  lcd.setCursor(4, 1);
+  lcd.setCursor(0, 0);
+  lcd.print("   Temperatur");
+  int out = Temp;
+  lcd.setCursor(0, 1);
+  lcd.print("     ");
   lcd.print(out);
-  lcd.setCursor(4, 4);
+  lcd.setCursor(12, 4);
   lcd.print(" °C");
   if (processing == 0) {
     Serial.print(out);
@@ -143,12 +142,11 @@ void FuncsetTemp() {
 }
 
 void FuncsetMoist() {
-  lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Luftfeuchtigkeit");
+  lcd.print("  Feuchtigkeit");
   int temp = analogRead(P_MOIST);
   int out = temp;
-  lcd.setCursor(5, 1);
+  lcd.setCursor(7, 1);
   int percent = map(out, 0, 1023, 0, 100);
   lcd.print(percent);
   lcd.print("%");
@@ -156,25 +154,24 @@ void FuncsetMoist() {
     Serial.print(percent);
     Serial.println("%");
   } else {
-    Serial.println();
+    Serial.println(out*2);
   }
 }
 
 void FuncsetBrightness() {
-  lcd.clear();
-  lcd.setCursor(0, 0);
+  lcd.setCursor(2, 0);
   lcd.print("Helligkeit");
 
   int temp = analogRead(P_LIGHT);
-  int out = map(temp, 250, 1023, 0, 1023);
-  lcd.setCursor(0, 1);
+  int out = temp;
+  lcd.setCursor(6, 1);
   lcd.print(out);
   Serial.println(out);
 }
 
 void FuncsetLength() {
-  lcd.setCursor(3, 0);
-  lcd.print("   L\xe1nge   ");
+  lcd.setCursor(0, 0);
+  lcd.print("      L\xe1nge   ");
   digitalWrite(P_TRIG, LOW);
   delayMicroseconds(2);
   digitalWrite(P_TRIG, HIGH);
@@ -184,7 +181,7 @@ void FuncsetLength() {
   distance = duration / 58.2;
   lcd.setCursor(6, 1);
   lcd.print(distance);
-  lcd.print(" cm");
+  lcd.print(" cm      ");
   if (distance >= maximumRange || distance <= minimumRange) {
     Serial.println("-1");
   }
