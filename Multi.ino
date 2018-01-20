@@ -163,11 +163,13 @@ const int D4 = 5;
 const int D5 = 4;
 const int D6 = 3;
 const int D7 = 2;
-
+const int maximumRange = 3000; // Maximum range needed
+const int minimumRange = 0; // Minimum range needed
+long duration, distance;
 
 //  ########
 
-int mode = 0;
+int mode;
 int firstround = 1;
 const int processing = 0;
 
@@ -185,62 +187,64 @@ void setup() {
   Serial.begin(9600);
   pinMode(8, OUTPUT);
   // while(!Serial) {} //only for Arduino Leonardo
-
   pinMode(TRIG_PIN, OUTPUT);
-
   rtc.begin();
   lcd.begin(16, 2);
   irrecv.enableIRIn();
-  Serial.println("{*] Setup successfully finished");
-  setMelody(2);
+  Serial.println("[*] Setup successfully finished");
+  setMelody(1);
 };
 
 
 void loop() {
-  switch (readIR()) {
-    case 0:
-      MysetTime();
-    case 1:
-      lcd.clear();
-      lcd.setCursor(3, 0);
-      lcd.print("Temperatur");
-      setTemp(analogRead(TEMP_PIN));
-    case 2:
-      lcd.clear();
-      lcd.setCursor(1, 0);
-      lcd.print("Helligkeit");
-      MysetBrightness();
-    case 3:
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Feuchtigkeit");
-      setHumidity();
-    case 4:
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Geschwindigkeit");
-      MysetSpeed();
-    case 5:
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Lautstärke");
-      MysetVolume();
-    case 6:
-      lcd.clear();
-      lcd.setCursor(4, 0);
-      lcd.print("Zetit");
-      setStopper();
-    case 7:
-      lcd.clear();
-      lcd.setCursor(4, 0);
-      lcd.print("L\xe1nge");
-      setLength();
-    default:
-      lcd.setCursor(0, 0);
-      lcd.print(" ERROR: Eingabe");
-      lcd.setCursor(0, 1);
-      lcd.print(" nicht vergeben");
+  readIR();
+  if (mode == 0) {
+    MysetTime();
   }
+  else if (mode == 1) {
+    lcd.clear();
+    lcd.setCursor(3, 0);
+    lcd.print("Temperatur");
+    setTemp(analogRead(TEMP_PIN));
+  } else if (mode == 2) {
+    lcd.clear();
+    lcd.setCursor(1, 0);
+    lcd.print("Helligkeit");
+    MysetBrightness();
+  }  else if (mode == 3) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Feuchtigkeit");
+    setHumidity();
+  } else if (mode == 4) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Geschwindigkeit");
+    MysetSpeed();
+  } else if (mode == 5) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Lautstärke");
+    MysetVolume();
+  } else if (mode == 6) {
+    lcd.clear();
+    lcd.setCursor(4, 0);
+    lcd.print("Zeit");
+    setStopper();
+  } else if (mode == 7) {
+    lcd.clear();
+    lcd.setCursor(4, 0);
+    lcd.print("L\xe1nge");
+    setLength();
+  } else {
+    lcd.setCursor(0, 0);
+    lcd.print(" ERROR) Eingabe");
+    lcd.setCursor(0, 1);
+    lcd.print(" nicht vergeben");
+    delay(1000);
+    lcd.clear();
+  }
+  Serial.println(mode);
   delay(10);
   if (firstround == 1) {
     Serial.println("[*] First round finished");
@@ -248,25 +252,31 @@ void loop() {
   }
 }
 
-int readIR() {
-  long irValue = results.value;
+void readIR() {
   if (irrecv.decode(&results)) {
-    switch (irValue) {
-      case 0xFF6897:  mode = 0;
-      case 0xFF30CF:  mode = 1;
-      case 0xFF18E7:  mode = 2;
-      case 0xFF7A85:  mode = 3;
-      case 0xFF10EF:  mode = 4;
-      case 0xFF38C7:  mode = 5;
-      case 0xFF5AA5:  mode = 6;
-      case 0xFF42BD:  mode = 7;
-      case 0xFF4AB5:  mode = 8;
-      case 0xFF52AD:  mode = 9;
+    if (results.value == 0xFF6897) {
+      mode = 0;
+    } else if (results.value == 0xFF30CF) {
+      mode = 1;
+    } else if (results.value == 0xFF18E7) {
+      mode = 2;
+    } else if (results.value == 0xFF7A85) {
+      mode = 3;
+    } else if (results.value == 0xFF10EF) {
+      mode = 4;
+    } else if (results.value == 0xFF38C7) {
+      mode = 5;
+    } else if (results.value == 0xFF5AA5) {
+      mode = 6;
+    } else if (results.value == 0xFF42BD) {
+      mode = 7;
+    } else if (results.value == 0xFF4AB5) {
+      mode = 8;
+    } else if (results.value == 0xFF52AD) {
+      mode = 9;
     }
     irrecv.resume();
   }
-  return mode;
-  Serial.println(mode);
 }
 
 
@@ -274,13 +284,13 @@ void setStopper() {
   int time = 0;
   int stop;
   setStopperIntro();
-  if (readIR() == 0) {
+  if (mode == 0) {
     while (stop != 1) {
       lcd.setCursor(3, 1);
       lcd.print(time);
       delayMicroseconds(1);
       time += 1;
-      if (readIR() == 9) {
+      if (mode == 9) {
         stop = 1;
         lcd.setCursor(0, 1);
         lcd.print("Final time: ");
@@ -314,35 +324,21 @@ void setStopperIntro() {
 
 
 void setLength() {
-
-  //Send Signal
-  digitalWrite(TRIG_PIN, HIGH);
-  delayMicroseconds(DELAY_USS);
   digitalWrite(TRIG_PIN, LOW);
-  // Recieved Signal
-
-  long duration = pulseIn(ECHO_PIN, HIGH);
-  int distance = duration * 0.034 / 2;
-
-  if (distance == 0 || distance <= 400) {
-    lcd.setCursor(0, 1);
-    lcd.print("Error/Zu weit");
-    if (distance <= 400 && distance <= 1000) {
-      lcd.setCursor(0, 1);
-      lcd.print("Zu weit");
-    }
-  } else {
-
-    lcd.setCursor(6, 1);
-    lcd.print(distance);
-    lcd.print("cm");
-
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  duration = pulseIn(ECHO_PIN, HIGH);
+  distance = duration / 5.82;
+  if (distance >= maximumRange || distance <= minimumRange) {
+    Serial.println("-1");
   }
-  delay(1);
-
-  if (processing == 1) {
+  else {
     Serial.println(distance);
   }
+
+  delay(1);
 }
 
 
@@ -359,18 +355,17 @@ void setTemp(int TempIn) {
 }
 
 void MysetTime() {
-
-  lcd.clear();
   char* dayOfWeek = rtc.getDOWStr();
   char* Mytime = rtc.getTimeStr();
   char* date = rtc.getDateStr();
 
   lcd.setCursor(0, 0);
-  lcd.print("Zeit:  ");
+  lcd.print("Zeit:   ");
   lcd.print(Mytime);
-  lcd.setCursor(1, 0);
+  lcd.setCursor(0, 1);
   lcd.print("Datum:  ");
   lcd.print(date);
+  delay(20);
 }
 
 
