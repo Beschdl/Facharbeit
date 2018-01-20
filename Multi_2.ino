@@ -2,7 +2,6 @@
 ##########################
 # BETTER UPDATED VERSION #
 ##########################
-*/
 
 //__Pins__
 
@@ -27,18 +26,21 @@ const int D6 = 5;
 const int D5 = 6;
 const int D4 = 7;
 
+const int P_PROC = 3;
 //__Variables__
 
+  //Melody
+char note1[] = "ccggaagffeeddc ";
+int beat1[] = { 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 4 };
+int tempo1 = 200;
 
-//UltraSonicSensor
-const int maximumrange = 3000;
-const int minimumrange = 0;
+  //UltraSonicSensor
+const int maximumRange = 1400;
+const int minimumRange = 0;
 long duration, distance;
-//Misc
-int mode;
-bool firstround = 1;
-const int processing = 0;
-
+  //Misc
+int mode = 4;
+int processing = 0;
 
 //__StartUp__
 
@@ -67,16 +69,40 @@ void setup() {
 }
 
 void loop() {
-  mode = 3;
+  checkMode();
+  checkProcessing();
   if (mode == 0) {
     FuncsetTime();
   } else if (mode == 1) {
     FuncsetTemp();
-  } else if (mode == 2){
+  } else if (mode == 2) {
     FuncsetMoist();
+  } else if (mode == 3) {
+    FuncsetBrightness();
+  } else if (mode == 4) {
+    FuncsetLength();
+  } else if (mode == 5) {
+    FuncsetMelody();
   }
-  delay(50);
+  delay(100);
 }
+
+void checkProcessing() {
+  int act = digitalRead(P_PROC);
+  if (act == HIGH) {
+    processing = 1;
+  } else if (act == LOW) {
+    processing = 0;
+  }
+  Serial.println(mode);
+}
+
+void checkMode() {
+  int value = analogRead(A4);
+  mode = map(value, -10, 1023, 0, 5);
+}
+
+
 void FuncsetTime() {
   char* dayOfWeek = rtc.getDOWStr();
   char* Mytime = rtc.getTimeStr();
@@ -88,7 +114,6 @@ void FuncsetTime() {
   lcd.setCursor(0, 1);
   lcd.print("Datum:  ");
   lcd.print(date);
-  delay(20);
 }
 
 
@@ -108,9 +133,12 @@ void FuncsetTemp() {
   lcd.print(out);
   lcd.setCursor(4, 4);
   lcd.print(" °C");
-  Serial.print(out);
   if (processing == 0) {
+    Serial.print(out);
     Serial.println(" °C");
+  } else if (processing == 1) {
+    float processing_out = map(out, 0, 100, 0, 1023);
+    Serial.println(processing_out);
   }
 }
 
@@ -118,12 +146,87 @@ void FuncsetMoist() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Luftfeuchtigkeit");
-
   int temp = analogRead(P_MOIST);
   int out = temp;
+  lcd.setCursor(5, 1);
+  int percent = map(out, 0, 1023, 0, 100);
+  lcd.print(percent);
+  lcd.print("%");
+  if (processing == 0) {
+    Serial.print(percent);
+    Serial.println("%");
+  } else {
+    Serial.println();
+  }
+}
+
+void FuncsetBrightness() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Helligkeit");
+
+  int temp = analogRead(P_LIGHT);
+  int out = map(temp, 250, 1023, 0, 1023);
   lcd.setCursor(0, 1);
   lcd.print(out);
-  lcd.print("%");
-  Serial.print(out);
-  Serial.println("%");
+  Serial.println(out);
+}
+
+void FuncsetLength() {
+  lcd.setCursor(3, 0);
+  lcd.print("   L\xe1nge   ");
+  digitalWrite(P_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(P_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(P_TRIG, LOW);
+  duration = pulseIn(P_ECHO, HIGH);
+  distance = duration / 58.2;
+  lcd.setCursor(6, 1);
+  lcd.print(distance);
+  lcd.print(" cm");
+  if (distance >= maximumRange || distance <= minimumRange) {
+    Serial.println("-1");
+  }
+  else {
+    if (processing == 0) {
+      Serial.print(distance);
+      Serial.println(" cm   s");
+    } else if (processing == 1) {
+      float processing_out = map(distance, 0, 150, 0, 1023);
+      Serial.println(processing_out);
+    }
+  }
+}
+
+
+void FuncsetMelody() {
+  int length = 15;
+  for (int i = 0; i < length; i++) {
+    if (note1[i] == ' ') {
+      delay(beat1[i] * tempo1); // rest
+    } else {
+      playNote(note1[i], beat1[i] * tempo1);
+      delay(tempo1 / 2);
+    }
+  }
+}
+
+
+void playTone(int tone, int duration) {
+  for (long i = 0; i < duration * 1000L; i += tone * 2) {
+    digitalWrite(P_BUZZER, HIGH);
+    delayMicroseconds(tone);
+    digitalWrite(P_BUZZER, LOW);
+    delayMicroseconds(tone);
+  }
+}
+void playNote(char note, int duration) {
+  char names[] = { 'c', 'd', 'e', 'f', 'g', 'a', 'b', 'C', 't' };
+  int tones[] = { 1915, 1700, 1519, 1432, 1275, 1136, 1014, 956, 988 };
+  for (int i = 0; i < 9; i++) {
+    if (names[i] == note) {
+      playTone(tones[i], duration);
+    }
+  }
 }
