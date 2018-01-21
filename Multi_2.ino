@@ -1,7 +1,7 @@
 /*
-##########################
-# BETTER UPDATED VERSION #
-##########################
+  ##########################
+  # BETTER UPDATED VERSION #
+  ##########################
 */
 //__Pins__
 
@@ -46,11 +46,8 @@ int processing = 0;
 
 #include <LiquidCrystal.h>
 #include <DS3231.h>
-#include <IRremote.h>
 #include <math.h>
 
-IRrecv irrecv(P_RECV);
-decode_results results;
 DS3231 rtc(SDA, SCL);
 LiquidCrystal lcd(RS, RW, E, D4, D5, D6, D7);
 
@@ -62,7 +59,6 @@ void setup() {
 
   rtc.begin();
   lcd.begin(16, 2);
-  irrecv.enableIRIn();
   if (processing == 0) {
     Serial.print("[*] Setup completed successfully");
   }
@@ -98,7 +94,8 @@ void checkProcessing() {
 
 void checkMode() {
   int value = analogRead(A4);
-  mode = map(value, -10, 1050, 1, 6);
+  mode = map(value, 0, 1023, 1, 6);
+  Serial.println(mode);
 }
 
 
@@ -130,8 +127,9 @@ void FuncsetTemp() {
   lcd.setCursor(0, 1);
   lcd.print("     ");
   lcd.print(out);
-  lcd.setCursor(12, 4);
-  lcd.print(" °C");
+  lcd.setCursor(6, 4);
+  lcd.print("\xdf");
+  lcd.print("C");
   if (processing == 0) {
     Serial.print(out);
     Serial.println(" °C");
@@ -143,7 +141,7 @@ void FuncsetTemp() {
 
 void FuncsetMoist() {
   lcd.setCursor(0, 0);
-  lcd.print("  Feuchtigkeit");
+  lcd.print("  Feuchtigkeit  ");
   int temp = analogRead(P_MOIST);
   int out = temp;
   lcd.setCursor(7, 1);
@@ -154,7 +152,7 @@ void FuncsetMoist() {
     Serial.print(percent);
     Serial.println("%");
   } else {
-    Serial.println(out*2);
+    Serial.println(out * 2);
   }
 }
 
