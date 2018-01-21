@@ -68,7 +68,7 @@ void loop() {
   checkMode();
   checkProcessing();
   if (mode == 1) {
-    // FuncsetTime();
+    FuncsetTime();
   } else if (mode == 2) {
     FuncsetTemp();
   } else if (mode == 3) {
@@ -102,14 +102,16 @@ void checkMode() {
 void FuncsetTime() {
   char* dayOfWeek = rtc.getDOWStr();
   char* Mytime = rtc.getTimeStr();
-  char* date = rtc.getDateStr();
+  char* Mydate = rtc.getDateStr();
 
   lcd.setCursor(0, 0);
   lcd.print("Zeit:   ");
   lcd.print(Mytime);
   lcd.setCursor(0, 1);
   lcd.print("Datum:  ");
-  lcd.print(date);
+  lcd.print(Mydate);
+  lcd.setCursor(13, 1);
+  lcd.print(".18");
 }
 
 
@@ -127,9 +129,9 @@ void FuncsetTemp() {
   lcd.setCursor(0, 1);
   lcd.print("     ");
   lcd.print(out);
-  lcd.setCursor(6, 4);
-  lcd.print("\xdf");
-  lcd.print("C");
+  lcd.setCursor(7, 4);
+  lcd.print(" \xdf");
+  lcd.print("C         ");
   if (processing == 0) {
     Serial.print(out);
     Serial.println(" °C");
@@ -148,7 +150,7 @@ void FuncsetMoist() {
   lcd.print("   ");
   int percent = map(out, 0, 1023, 0, 100);
   lcd.print(percent);
-  lcd.print("%    ");
+  lcd.print("%             ");
   if (processing == 0) {
     Serial.print(percent);
     Serial.println("%");
@@ -156,19 +158,20 @@ void FuncsetMoist() {
     Serial.println(out * 2);
   }
 }
-
 void FuncsetBrightness() {
   lcd.setCursor(2, 0);
-  lcd.print("Helligkeit");
+  lcd.print("Helligkeit  ");
 
   int temp = analogRead(P_LIGHT);
   int out = temp;
   lcd.setCursor(6, 1);
   lcd.print(out);
-  lcd.print("   ");
+  lcd.print("          ");
   Serial.println(out);
+  if (processing == 0) {
+    Serial.println("%    ");
+  }
 }
-
 void FuncsetLength() {
   lcd.setCursor(0, 0);
   lcd.print("      L\xe1nge   ");
