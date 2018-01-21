@@ -14,7 +14,7 @@ const int P_RECV = 8;
 //Measure
 const int P_TEMP = A1;
 const int P_MOIST = A0;
-const int P_LIGHT = A3;
+const int P_LIGHT = A7;
 //Buzzer
 const int P_BUZZER = 12;
 //LCD
@@ -68,7 +68,7 @@ void loop() {
   checkMode();
   checkProcessing();
   if (mode == 1) {
-    FuncsetTime();
+    // FuncsetTime();
   } else if (mode == 2) {
     FuncsetTemp();
   } else if (mode == 3) {
@@ -122,7 +122,7 @@ void FuncsetTemp() {
   Temp = Temp / 5.42;
 
   lcd.setCursor(0, 0);
-  lcd.print("   Temperatur");
+  lcd.print("   Temperatur    ");
   int out = Temp;
   lcd.setCursor(0, 1);
   lcd.print("     ");
@@ -144,10 +144,11 @@ void FuncsetMoist() {
   lcd.print("  Feuchtigkeit  ");
   int temp = analogRead(P_MOIST);
   int out = temp;
-  lcd.setCursor(7, 1);
+  lcd.setCursor(4, 1);
+  lcd.print("   ");
   int percent = map(out, 0, 1023, 0, 100);
   lcd.print(percent);
-  lcd.print("%");
+  lcd.print("%    ");
   if (processing == 0) {
     Serial.print(percent);
     Serial.println("%");
@@ -164,6 +165,7 @@ void FuncsetBrightness() {
   int out = temp;
   lcd.setCursor(6, 1);
   lcd.print(out);
+  lcd.print("   ");
   Serial.println(out);
 }
 
