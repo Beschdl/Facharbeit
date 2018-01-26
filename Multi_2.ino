@@ -1,21 +1,20 @@
-//__Pins__
-
 /*
   ##########################
   # BETTER UPDATED VERSION #
   ##########################
 */
+
 //__Pins__
 
 
 //UltraSonicSensor
-const int P_TRIG = 13;
+const int P_TRIGGER = 13;
 const int P_ECHO = A2;
 //InfraRed
 const int P_RECV = 8;
 //Measure
-const int P_TEMP = A1;
-const int P_MOIST = A0;
+const int P_TEMPERATURE = A1;
+const int P_MOISTURE = A0;
 const int P_LIGHT = A7;
 //Buzzer
 const int P_BUZZER = 12;
@@ -28,8 +27,11 @@ const int D6 = 5;
 const int D5 = 6;
 const int D4 = 7;
 
-const int P_PROC = 3;
+const int P_PROCESSING = 3;
+
+
 //__Variables__
+
 
 //Melody
 char note1[] = "ccggaagffeeddc ";
@@ -41,14 +43,12 @@ const int maximumRange = 1400;
 const int minimumRange = 0;
 long duration, distance;
 //Misc
-int mode = 4;
-int processing = 0;
+int mode, processing;
 
 //__StartUp__
 
 #include <LiquidCrystal.h>
 #include <DS3231.h>
-#include <math.h>
 
 DS3231 rtc(SDA, SCL);
 LiquidCrystal lcd(RS, RW, E, D4, D5, D6, D7);
@@ -57,7 +57,7 @@ void setup() {
   Serial.begin(9600);
 
   pinMode(P_BUZZER, OUTPUT);
-  pinMode(P_TRIG, OUTPUT);
+  pinMode(P_TRIGGER, OUTPUT);
 
   rtc.begin();
   lcd.begin(16, 2);
@@ -74,19 +74,23 @@ void loop() {
   } else if (mode == 2) {
     FuncsetTemp();
   } else if (mode == 3) {
-    FuncsetMoist();
+    FuncsetMoisture();
   } else if (mode == 4) {
     FuncsetBrightness();
   } else if (mode == 5) {
     FuncsetLength();
   } else if (mode == 6) {
     FuncsetMelody();
+  } else {
+    if (processing==0){
+      Serial.println("[!] Something went wrong, an invalid mode was selected");
+    }
   }
   delay(10);
 }
 
 void checkProcessing() {
-  int act = digitalRead(P_PROC);
+  int act = digitalRead(P_PROCESSING);
   if (act == HIGH) {
     processing = 1;
   } else if (act == LOW) {
@@ -117,16 +121,20 @@ void FuncsetTime() {
 
 
 void FuncsetTemp() {
-  float RawADC = analogRead(A1);
-  double Temp;
-  Temp = log(10000.0 * ((1024.0 / RawADC - 1)));
-  Temp = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * Temp * Temp )) * Temp );
-  Temp = Temp - 273.15;
-  Temp = Temp / 5.42;
+  int Vo;
+  float R1 = 10000;
+  float logR2, R2, T, Tc, Tf;
+  float c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
+  
+  Vo = analogRead(P_TEMPERATURE);
+  R2 = R1 * (1023.0 / (float)Vo - 1.0);
+  logR2 = log(R2);
+  T = (1.0 / (c1 + c2 * logR2 + c3 * logR2 * logR2 * logR2));
+  Tc = T - 273.15;
 
   lcd.setCursor(0, 0);
   lcd.print("   Temperatur    ");
-  int out = Temp;
+  int out = Tc;
   lcd.setCursor(0, 1);
   lcd.print("     ");
   lcd.print(out);
@@ -142,10 +150,11 @@ void FuncsetTemp() {
   }
 }
 
-void FuncsetMoist() {
+
+void FuncsetMoisture() {
   lcd.setCursor(0, 0);
   lcd.print("  Feuchtigkeit  ");
-  int temp = analogRead(P_MOIST);
+  int temp = analogRead(P_MOISTURE);
   int out = temp;
   lcd.setCursor(4, 1);
   lcd.print("   ");
@@ -171,18 +180,18 @@ void FuncsetBrightness() {
   Serial.print(out);
   if (processing == 0) {
     Serial.println("%    ");
-  } else if (processing==1) {
+  } else if (processing == 1) {
     Serial.println();
   }
 }
 void FuncsetLength() {
   lcd.setCursor(0, 0);
   lcd.print("      L\xe1nge   ");
-  digitalWrite(P_TRIG, LOW);
+  digitalWrite(P_TRIGGER, LOW);
   delayMicroseconds(2);
-  digitalWrite(P_TRIG, HIGH);
+  digitalWrite(P_TRIGGER, HIGH);
   delayMicroseconds(10);
-  digitalWrite(P_TRIG, LOW);
+  digitalWrite(P_TRIGGER, LOW);
   duration = pulseIn(P_ECHO, HIGH);
   distance = duration / 58.2;
   lcd.setCursor(6, 1);
