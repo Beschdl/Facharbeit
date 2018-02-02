@@ -155,7 +155,6 @@ void Funktion_Time() {
 
   // Der Teil übernimmt die Zeit von der angeschlossenen RTC. Dafür wird eine Library benötigt, da ansonsten der Code ziemlich lang sein würde.
 
-  char* Wochentag = rtc.getDOWStr();
   char* Zeit = rtc.getTimeStr();
   char* Datum = rtc.getDateStr();
 
